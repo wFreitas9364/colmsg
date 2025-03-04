@@ -1,0 +1,238 @@
+日本語 | [English](README.en.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md)
+
+<div align="center">
+  <h1><strong>colmsg</strong></h1>
+  <img src="https://user-images.githubusercontent.com/3148511/158018437-09822a33-8767-4e03-ba90-e0f69594c493.jpeg" width="32px" alt="櫻坂46メッセージのロゴ"><img src="https://user-images.githubusercontent.com/3148511/158018441-dd7cb9eb-bf31-4938-830d-1ef293a2afba.jpg" width="32px" alt="日向坂46メッセージのロゴ"><img src="https://user-images.githubusercontent.com/3148511/158018442-ae54e926-760d-4b47-b0a0-7255485e1f28.jpg" width="32px" alt="乃木坂46メッセージのロゴ">
+
+  「櫻坂46メッセージ」「日向坂46メッセージ」「乃木坂46メッセージ」「齋藤飛鳥メッセージ」「白石麻衣メッセージ」「yodel」アプリのメッセージをPCに保存します。
+
+  ![demo](doc/demo/colmsg.gif)
+</div>
+
+## 使い始める
+
+[こちら](#インストール)を参考に `colmsg` をインストールしてください。  
+Windowsの場合は実行ファイル名を `colmsg.exe` に読み替えてください。
+
+アプリ上でログインアカウント設定を済ませておいてください。  
+サービスごとに一度ログインを行ってください。
+
+```sh
+colmsg login sakurazaka
+```
+
+指定可能なサービス名は `sakurazaka`、`hinatazaka`、`nogizaka`、`asukasaito`、`maishiraishi`、`yodel` です。  
+購読しているメンバー全員の全期間のメッセージを保存します。
+
+```sh
+colmsg
+```
+
+## 特徴
+
+* ✅ 端末のroot化の必要がありません
+* ✅ colmsgだけで完結します
+* ✅ Windows, macos, Linuxで実行できます
+* ✅ 様々な保存方法が選べます
+
+## 保存方法のオプション
+
+`colmsg` にはいくつかのオプションがあり、様々な保存方法を選べます。
+
+特定のメンバーのメッセージを保存したい場合
+
+```sh
+colmsg -n 菅井友香 -n 佐々木久美
+```
+
+特定のグループのメッセージを保存したい場合
+
+```sh
+colmsg -g sakurazaka
+```
+
+特定の種類のメッセージを保存したい場合
+
+```sh
+colmsg -k picture -k video
+```
+
+特定の日時以降のメッセージを保存したい場合
+
+```sh
+colmsg -F '2020/01/01 00:00:00'
+```
+
+デフォルトでは、各サービスにつきメンバー4人分のメッセージを並列で保存します。`--jobs`（`-j`）で並列数を変更できます。
+
+```sh
+colmsg --jobs 2
+```
+
+オプションは組み合わせて使用することが出来ます。より詳細な説明は以下を実行して確認してください。
+
+```sh
+colmsg --help
+```
+
+## ログイン
+
+ログイン時に使用するブラウザは自動検出されます。Chrome・Brave・EdgeなどのChromium系ブラウザを指定したい場合や、自動検出できない場合は、`--browser` にブラウザの実行ファイルのパスを指定してください。
+
+```sh
+colmsg login sakurazaka --browser '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+```
+
+環境変数 `COLMSG_BROWSER` でも指定でき、`--browser` が優先されます。
+
+ログイン成功後の認証情報は設定ディレクトリの `auth/<service>.json` に保存されます。  
+保存された認証方式・アカウント・期限を確認できます。
+
+```sh
+colmsg auth status
+```
+
+## 詳細な仕様
+
+* 既にいくつかメッセージが保存されている場合にコマンドを実行すると、最後に保存したメッセージ以降のメッセージを取得して保存します  
+* 保存されるメッセージは次のディレクトリ構造で保存されます
+  * ```text
+    colmsg/
+    ├── 日向坂46 一期生
+    │   └── 佐々木久美
+    │       └── 1_0_20191231235959_佐々木久美.txt
+    ├── 乃木坂46
+    │   └── 秋元真夏
+    │       └── 2_1_20200101000000_秋元真夏.jpg
+    └── 櫻坂46 一期生
+        └── 菅井友香
+            ├── 3_2_20200101000001_菅井友香.mp4
+            └── 4_3_20200101000002_菅井友香.mp4
+    ```
+* ファイル名の形式は `<シーケンス番号>_<種類>_<日付>_<投稿者名>.<拡張子>` となっています
+  * シーケンス番号はメッセージの時系列を表す番号になっています。投稿者名の前までの並び順を維持しているため、ファイルブラウザで辞書順に並べると保存したメッセージが時系列通りに並びます
+  * 投稿者を特定できない場合は `unknown` が使われます
+  * 種類の数字は以下のように対応しています
+    * 0: テキストメッセージ
+    * 1: 画像
+    * 2: 動画
+    * 3: ボイス
+    * 4: リンク
+* 設定ファイルとコマンドラインの指定を反映した保存先は、以下を実行すると確認できます
+  * ```sh
+    colmsg --download-dir
+    ```
+* 既に保存済のメッセージは上書き保存されません
+
+## configファイル
+
+`colmsg` は設定ファイルで予めオプションを指定することが出来ます。  
+現在使用する設定ファイルのパスは以下を実行すると確認できます。
+
+```sh
+colmsg --config-path
+```
+また、環境変数 `COLMSG_CONFIG_PATH` に設定ファイルの場所を明記することもできます。
+
+```sh
+export COLMSG_CONFIG_PATH="/path/to/colmsg.conf"
+```
+
+### フォーマット
+
+この設定ファイルはコマンドライン引数の単純なリストです。`colmsg --help` で利用可能なオプションと値を確認できます。`#` でコメントを加えることができます。
+
+設定ファイルの例：
+
+```text
+# 櫻坂のメッセージだけを対象とする
+-g sakurazaka
+
+# メディアファイルだけ保存
+-k picture -k video -k voice
+
+# サービスごとの同時保存数を6にする
+--jobs 6
+```
+
+## 従来のrefresh_token認証（非推奨）
+
+`refresh_token` 方式は **非推奨** です。新規利用・移行には `colmsg login <service>` によるCookie認証を使用してください。
+
+従来方式を使用する場合のみ、[旧取得手順](doc/how_to_get_refresh_token.md)を参照し、各サービスのトークンを設定ファイルに指定します。
+
+従来方式の設定例（非推奨・必要なサービスのみ指定）：
+
+```text
+# s_refresh_tokenを指定
+--s_refresh_token s_refresh_token
+
+# h_refresh_tokenを指定
+--h_refresh_token h_refresh_token
+
+# n_refresh_tokenを指定
+--n_refresh_token n_refresh_token
+
+# a_refresh_tokenを指定
+--a_refresh_token a_refresh_token
+
+# m_refresh_tokenを指定
+--m_refresh_token m_refresh_token
+
+# y_refresh_tokenを指定
+--y_refresh_token y_refresh_token
+```
+
+## インストール
+
+### Windows
+
+Windows用のビルド済実行ファイルをzipに圧縮して[リリースページ](https://github.com/proshunsuke/colmsg/releases)に配置しています。  
+ダウンロードして[7-Zip](https://sevenzip.osdn.jp/)などの解凍ソフトで解凍してください。  
+解凍後に実行ファイル `colmsg.exe` が取得出来ます。  
+[PowerShell](https://docs.microsoft.com/ja-jp/powershell/)上などで実行してください。
+
+### macOS
+
+Homebrewでインストールすることが出来ます。
+
+```sh
+brew tap proshunsuke/colmsg
+brew install colmsg
+```
+
+### Arch Linux
+
+[AUR](https://aur.archlinux.org/packages/colmsg/)からインストールできます。
+
+```sh
+yay -S colmsg
+```
+
+### バイナリ
+
+異なるアーキテクチャのためのビルド済実行ファイルを[リリースページ](https://github.com/proshunsuke/colmsg/releases)に配置しました。
+
+## 開発
+
+テストは `make test` で実行できます。全featureのテストは `make test-all-features` です。
+Rustのフォーマットは `make fmt` で自動修正でき、`make fmt-check` で確認できます。
+
+`colmsg` は外部APIを叩きます。開発時はOpenApiを利用したモックサーバーを建てることが出来ます。
+
+```sh
+make server/kh
+make server/n46
+```
+
+環境変数 `S_BASE_URL` , `H_BASE_URL` , `N_BASE_URL` を指定することでモックサーバーへリクエストすることが出来ます。
+
+```sh
+S_BASE_URL=http://localhost:8003 H_BASE_URL=http://localhost:8003 N_BASE_URL=http://localhost:8006 cargo run -- -d ~/Downloads/temp/ --help
+```
+
+## ライセンス
+
+`colmsg` は MIT License の条件の下で配布されています。
+
+ライセンスの詳細については [LICENSE](LICENSE.txt) ファイルを参照して下さい。
