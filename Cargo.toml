@@ -1,0 +1,5 @@
+[package]
+name = "colmsg"
+version = "0.1.0"
+edition = "2021"
+description = "A CLI tool for '櫻坂46メッセージ', '日向坂46メッセージ', '乃木坂46メッセージ', '齋藤飛鳥メッセージ', '白石麻衣メッセージ', and 'yodel' app."
